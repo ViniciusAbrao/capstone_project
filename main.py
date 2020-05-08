@@ -122,31 +122,20 @@ all_promos=np.array(['ae264e3637204a6fb9bb56bc8210ddfd','4d5c57ea9a6940dd891ad53
                    'fafdcd668e3743c1bb461111dcafc2a4','2906b810c7d4411798c6938adc9daaa5',\
                        '3f207df678b143eea3cee63160fa8bed',\
                            '5a8bc65990b245e5a138643cd4eb9837'])
+
+'''
 x_train_test=[]
 y_train_test=[]  
 
 import time
 import progressbar
-
 with progressbar.ProgressBar(max_value=len(list(filter_users))) as bar:
     contbar=0
     for user in list(filter_users):    
-        user_transcripts=filter_transcript[filter_transcript['person']==user]\
-            .loc[:,['event','time','value']].sort_values(by='time')
-        y_user=[0,0,0,0,0,0,0,0,0,0]
-        cont=-1
-        for events in list(user_transcripts['event']):
-            cont=cont+1
-            if events=='offer completed':
-                promo=list(user_transcripts['value'])[cont]['offer_id']
-                indx=np.where(list_promos==promo)
-                y_user[indx[0][0]]=1    
-        y_train_test.append(np.array(y_user))
-        x_train_test.append(np.array(profile[profile['id']==user]\
-                                     .loc[:,['age','gender','income']].values[0]))
+        user_evaluate(user)
         bar.update(contbar)
         contbar=contbar+1
-
+'''
  
     
 '''
@@ -243,7 +232,9 @@ def user_evaluate(user):
     
     teste=filter_transcript[filter_transcript['person']==user]\
             .loc[:,['event','time','value']].sort_values(by='time')         
+    print(teste)
     y_user=[0,0,0,0,0,0,0,0,0,0]
+    ncont=len(list(teste['event']))
     cont=-1
     for events in list(teste['event']):
         cont=cont+1
@@ -278,12 +269,14 @@ def user_evaluate(user):
                                         indx=np.where(all_promos==promo)
                                         y_user[indx[0][0]]=1    
                                         print(y_user)
+                                        break
             if promo in list_informational:
                 print('informational')
                 duration=portfolio[portfolio['id']==promo]['duration']\
                     .values[0]*24 #now in hours
                 received_at=list(teste['time'])[cont] #hours
                 valid=received_at+duration
+                print(valid)
                 cont_two=cont-1
                 for events_two in (list(teste['event'])[cont:]):
                     cont_two=cont_two+1
@@ -295,20 +288,34 @@ def user_evaluate(user):
                             cont_three=cont_two-1
                             for events_three in (list(teste['event'])[cont_two:]):
                                 cont_three=cont_three+1
+                                print('cont3')
+                                print(cont_three)
                                 if events_three=='transaction': 
                                     date_buy=list(teste['time'])[cont_three]
+                                    print(date_buy)
                                     if date_buy<=valid:
                                         print(promo)
                                         indx=np.where(all_promos==promo)
                                         y_user[indx[0][0]]=1    
-                                        print(y_user)                           
+                                        print(y_user)
+                                        break
     y_train_test.append(np.array(y_user))
     x_train_test.append(np.array(profile[profile['id']==user]\
                                  .loc[:,['age','gender','income']].values[0]))
+    print(y_train_test)
         
 
 
 x_train_test=[]
 y_train_test=[] 
-user='43fbc1418ee14268a5d3797006cc69be'  
+user='78afa995795e4d85b5d9ceeca43f5fef' 
 user_evaluate(user)
+
+'''
+array(['0610b486422d4921ae7d2bf64640c50b',
+       '78afa995795e4d85b5d9ceeca43f5fef',
+       'e2127556f4f64592b11af22de27a7932', ...,
+       '01d26f638c274aa0b965d24cefe3183f',
+       '9dc1421481194dcd9400aec7c9ae6366',
+       'e4052622e5ba45a8b96b59aba68cf068']
+'''
