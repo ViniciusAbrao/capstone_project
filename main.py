@@ -46,19 +46,7 @@ y[9]  informational  5a8bc65990b245e5a138643cd4eb9837   0
   
 diferentes perfis de usuarios, descritos em profile, sao avaliados na promocao 
 profile - ['age', 'became_member_on', 'gender', 'id', 'income']
-
-para cada usuario olhar suas transcripts
-Exemplo: user_transcripts=filter_transcript[filter_transcript['person']==\
-    '109c657e856f4722b46a9183aaaf8c95']\
-    .loc[:,['event','time','value']].sort_values(by='time')
-
-percorrer user_transcripts encontrada para cada usuario:
-- Se recebeu oferta bogo ou discount e atende cenario 1:
-Inputs (age, gender, income) - Outputs (y[i]=1, i=0,1,2,3,4,5,6 ou 7)
-- Se recebeu oferta information e atende cenario 2:
-Inputs (age, gender, income) - Outputs (y[i]=1, i=8 ou 9)
-- Se nao:
-Inputs (age, gender, income) - Outputs (y[:]=0)    
+  
    
 '''
 
@@ -125,8 +113,15 @@ print(event_completed['person'].nunique())
 list_promos=np.array(['ae264e3637204a6fb9bb56bc8210ddfd','4d5c57ea9a6940dd891ad53e9dbe8da0',\
            '9b98b8c7a33c4b65b9aebfe6a799e6d9','f19421c1d4aa40978ebb69ca19b0e20d',\
                '0b1e1539f2cc45b7b9fa7c272da2e1d7','2298d6c36e964ae4a3e7e9706d1fb8c2',\
-                   'fafdcd668e3743c1bb461111dcafc2a4','2906b810c7d4411798c6938adc9daaa5'])
-
+                   'fafdcd668e3743c1bb461111dcafc2a4','2906b810c7d4411798c6938adc9daaa5',])
+list_informational=np.array(['3f207df678b143eea3cee63160fa8bed',\
+                             '5a8bc65990b245e5a138643cd4eb9837'])   
+all_promos=np.array(['ae264e3637204a6fb9bb56bc8210ddfd','4d5c57ea9a6940dd891ad53e9dbe8da0',\
+           '9b98b8c7a33c4b65b9aebfe6a799e6d9','f19421c1d4aa40978ebb69ca19b0e20d',\
+               '0b1e1539f2cc45b7b9fa7c272da2e1d7','2298d6c36e964ae4a3e7e9706d1fb8c2',\
+                   'fafdcd668e3743c1bb461111dcafc2a4','2906b810c7d4411798c6938adc9daaa5',\
+                       '3f207df678b143eea3cee63160fa8bed',\
+                           '5a8bc65990b245e5a138643cd4eb9837'])
 x_train_test=[]
 y_train_test=[]  
 
@@ -220,46 +215,100 @@ y_train_test.append(np.array(y_user))
 x_train_test.append(np.array(profile[profile['id']==user]\
                              .loc[:,['age','gender','income']].values[0]))
 
-    
-na vdd tem que ser 
 
-se usuario viu oferta do tipo bogo/discount:
-    se depois completou
-        y=1
-        
-se usuario recebeu oferta do tipo informational
-    qual periodo da promocional?
-    pega data de recebimento e calcula data limite baseado no periodo
-    se viu informational
-        se comprou dentro da data limite
-            y=1
+loop nos eventos do usuario
+    se evento = recebeu oferta 
+        se oferta do tipo bogo/discount
+            qual periodo da informational?
+            pega data de recebimento e calcula data limite baseado no periodo
+            loop nos eventos seguintes: 
+                se usuario viu esta mesma oferta
+                    loop nos enevtos seguintes:
+                        se completou esta mesma oferta oferta
+                            y=1
+        se oferta do tipo informational
+            qual periodo da informational?
+            pega data de recebimento e calcula data limite baseado no periodo
+            loop nos eventos seguintes
+                se viu este mesmo informational
+                    loop nos eventos seguintes
+                        se comprou dentro da data limite
+                            y=1
 
     
  '''   
     
+
+def user_evaluate(user):
     
-user='43fbc1418ee14268a5d3797006cc69be'  
-teste=filter_transcript[filter_transcript['person']==user]\
-        .loc[:,['event','time','value']].sort_values(by='time')  
-   
-x_train_test=[]
-y_train_test=[]  
-    
-y_user=[0,0,0,0,0,0,0,0,0,0]
-cont=-1
-for events in list(teste['event']):
-    cont=cont+1
-    if events=='offer completed':
-        print(cont)
-        promo=list(teste['value'])[cont]['offer_id']
-        print(promo)
-        indx=np.where(list_promos==promo)
-        y_user[indx[0][0]]=1    
-        print(y_user)
+    teste=filter_transcript[filter_transcript['person']==user]\
+            .loc[:,['event','time','value']].sort_values(by='time')         
+    y_user=[0,0,0,0,0,0,0,0,0,0]
+    cont=-1
+    for events in list(teste['event']):
+        cont=cont+1
+        if events=='offer received':
+            print('cont')
+            print(cont)
+            promo=list(teste['value'])[cont]['offer id']
+            if promo in list_promos:
+                print('promo')
+                duration=portfolio[portfolio['id']==promo]['duration']\
+                    .values[0]*24 #now in hours
+                received_at=list(teste['time'])[cont] #hours
+                valid=received_at+duration
+                cont_two=cont-1
+                for events_two in (list(teste['event'])[cont:]):
+                    cont_two=cont_two+1
+                    if events_two=='offer viewed':
+                        print('cont2')
+                        print(cont_two)
+                        promo_two=list(teste['value'])[cont_two]['offer id']
+                        if promo_two==promo:
+                            cont_three=cont_two-1
+                            for events_three in (list(teste['event'])[cont_two:]):
+                                cont_three=cont_three+1
+                                if events_three=='offer completed':
+                                    print('cont3')
+                                    print(cont_three)
+                                    promo_three=list(teste['value'])[cont_three]['offer_id']
+                                    date_buy=list(teste['time'])[cont_three]
+                                    if promo_three==promo and date_buy<=valid:
+                                        print(promo)
+                                        indx=np.where(all_promos==promo)
+                                        y_user[indx[0][0]]=1    
+                                        print(y_user)
+            if promo in list_informational:
+                print('informational')
+                duration=portfolio[portfolio['id']==promo]['duration']\
+                    .values[0]*24 #now in hours
+                received_at=list(teste['time'])[cont] #hours
+                valid=received_at+duration
+                cont_two=cont-1
+                for events_two in (list(teste['event'])[cont:]):
+                    cont_two=cont_two+1
+                    if events_two=='offer viewed':
+                        print('cont2')
+                        print(cont_two)
+                        promo_two=list(teste['value'])[cont_two]['offer id']
+                        if promo_two==promo:
+                            cont_three=cont_two-1
+                            for events_three in (list(teste['event'])[cont_two:]):
+                                cont_three=cont_three+1
+                                if events_three=='transaction': 
+                                    date_buy=list(teste['time'])[cont_three]
+                                    if date_buy<=valid:
+                                        print(promo)
+                                        indx=np.where(all_promos==promo)
+                                        y_user[indx[0][0]]=1    
+                                        print(y_user)                           
+    y_train_test.append(np.array(y_user))
+    x_train_test.append(np.array(profile[profile['id']==user]\
+                                 .loc[:,['age','gender','income']].values[0]))
         
-y_train_test.append(np.array(y_user))
-x_train_test.append(np.array(profile[profile['id']==user]\
-                             .loc[:,['age','gender','income']].values[0]))
 
 
-
+x_train_test=[]
+y_train_test=[] 
+user='43fbc1418ee14268a5d3797006cc69be'  
+user_evaluate(user)
