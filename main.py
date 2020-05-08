@@ -102,8 +102,8 @@ print(transcript.count())
 event_completed=filter_transcript[filter_transcript['event']=='offer completed']\
     .loc[:,['event','time','value','person']]
 event_completed_values=list(event_completed['value'].values)
-extract_id=(lambda x:x['offer_id'])
-ids=pd.Series(pd.Series(event_completed_values).map(extract_id))
+extract_completed=(lambda x:x['offer_id'])
+ids=pd.Series(pd.Series(event_completed_values).map(extract_completed))
 
 print('how many cases of offer_completed for each offer_type')
 print(len(ids[ids=='ae264e3637204a6fb9bb56bc8210ddfd']))
@@ -122,17 +122,41 @@ print(event_completed['person'].nunique())
 #11986 from 14825 persons completed offer. Are they influenced by the offer? 
 #Did the customer view the offer? 
 
-for user in list(filter_users):    
-    user_transcripts=filter_transcript[filter_transcript['person']==user]\
-        .loc[:,['event','time','value']].sort_values(by='time')
-   
+list_promos=np.array(['ae264e3637204a6fb9bb56bc8210ddfd','4d5c57ea9a6940dd891ad53e9dbe8da0',\
+           '9b98b8c7a33c4b65b9aebfe6a799e6d9','f19421c1d4aa40978ebb69ca19b0e20d',\
+               '0b1e1539f2cc45b7b9fa7c272da2e1d7','2298d6c36e964ae4a3e7e9706d1fb8c2',\
+                   'fafdcd668e3743c1bb461111dcafc2a4','2906b810c7d4411798c6938adc9daaa5'])
+
+x_train_test=[]
+y_train_test=[]  
+
+import time
+import progressbar
+
+with progressbar.ProgressBar(max_value=len(list(filter_users))) as bar:
+    contbar=0
+    for user in list(filter_users):    
+        user_transcripts=filter_transcript[filter_transcript['person']==user]\
+            .loc[:,['event','time','value']].sort_values(by='time')
+        y_user=[0,0,0,0,0,0,0,0,0,0]
+        cont=-1
+        for events in list(user_transcripts['event']):
+            cont=cont+1
+            if events=='offer completed':
+                promo=list(user_transcripts['value'])[cont]['offer_id']
+                indx=np.where(list_promos==promo)
+                y_user[indx[0][0]]=1    
+        y_train_test.append(np.array(y_user))
+        x_train_test.append(np.array(profile[profile['id']==user]\
+                                     .loc[:,['age','gender','income']].values[0]))
+        bar.update(contbar)
+        contbar=contbar+1
+
+ 
     
 '''
 Exemplo 
-    
 user='43fbc1418ee14268a5d3797006cc69be'
-
-filter_transcript[filter_transcript['person']==user]
 
                   event  ...                                              value
 11323    offer received  ...   {'offer id': '0b1e1539f2cc45b7b9fa7c272da2e1d7'}
@@ -160,4 +184,82 @@ filter_transcript[filter_transcript['person']==user]
 278924      transaction  ...                                  {'amount': 15.07}
 281285      transaction  ...                                  {'amount': 29.47}
 281286  offer completed  ...  {'offer_id': '0b1e1539f2cc45b7b9fa7c272da2e1d7...
-'''    
+    
+
+y[0]           bogo  ae264e3637204a6fb9bb56bc8210ddfd   
+y[1]           bogo  4d5c57ea9a6940dd891ad53e9dbe8da0   
+y[2]           bogo  9b98b8c7a33c4b65b9aebfe6a799e6d9   
+y[3]           bogo  f19421c1d4aa40978ebb69ca19b0e20d   
+y[4]       discount  0b1e1539f2cc45b7b9fa7c272da2e1d7   
+y[5]       discount  2298d6c36e964ae4a3e7e9706d1fb8c2   
+y[6]       discount  fafdcd668e3743c1bb461111dcafc2a4   
+y[7]       discount  2906b810c7d4411798c6938adc9daaa5   
+y[8]  informational  3f207df678b143eea3cee63160fa8bed   
+y[9]  informational  5a8bc65990b245e5a138643cd4eb9837   
+
+
+user='43fbc1418ee14268a5d3797006cc69be'  
+teste=filter_transcript[filter_transcript['person']==user]\
+        .loc[:,['event','time','value']].sort_values(by='time')  
+   
+x_train_test=[]
+y_train_test=[]  
+    
+y_user=[0,0,0,0,0,0,0,0,0,0]
+cont=-1
+for events in list(teste['event']):
+    cont=cont+1
+    if events=='offer completed':
+        print(cont)
+        promo=list(teste['value'])[cont]['offer_id']
+        print(promo)
+        indx=np.where(list_promos==promo)
+        y_user[indx[0][0]]=1    
+        print(y_user)
+y_train_test.append(np.array(y_user))
+x_train_test.append(np.array(profile[profile['id']==user]\
+                             .loc[:,['age','gender','income']].values[0]))
+
+    
+na vdd tem que ser 
+
+se usuario viu oferta do tipo bogo/discount:
+    se depois completou
+        y=1
+        
+se usuario recebeu oferta do tipo informational
+    qual periodo da promocional?
+    pega data de recebimento e calcula data limite baseado no periodo
+    se viu informational
+        se comprou dentro da data limite
+            y=1
+
+    
+ '''   
+    
+    
+user='43fbc1418ee14268a5d3797006cc69be'  
+teste=filter_transcript[filter_transcript['person']==user]\
+        .loc[:,['event','time','value']].sort_values(by='time')  
+   
+x_train_test=[]
+y_train_test=[]  
+    
+y_user=[0,0,0,0,0,0,0,0,0,0]
+cont=-1
+for events in list(teste['event']):
+    cont=cont+1
+    if events=='offer completed':
+        print(cont)
+        promo=list(teste['value'])[cont]['offer_id']
+        print(promo)
+        indx=np.where(list_promos==promo)
+        y_user[indx[0][0]]=1    
+        print(y_user)
+        
+y_train_test.append(np.array(y_user))
+x_train_test.append(np.array(profile[profile['id']==user]\
+                             .loc[:,['age','gender','income']].values[0]))
+
+
+
