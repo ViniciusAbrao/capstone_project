@@ -15,6 +15,10 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 import pickle
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.utils import resample
 
 
 def load_data():
@@ -30,11 +34,53 @@ def load_data():
     return X, Y
 
 
+def up_df(table,col):
+    
+    df_majority = table[table[col]==0]
+    df_minority = table[table[col]==1]
+    
+    # Upsample minority class
+    df_minority_upsampled = resample(df_minority, 
+                                     replace=True,   # sample with replacement
+                                     n_samples=df_majority.shape[0]  # to match majority class
+                                ) 
+ 
+    # Combine majority class with upsampled minority class
+    df_upsampled = pd.concat([df_majority, df_minority_upsampled])
+    
+    return df_upsampled
+    
+def upsampler(X,Y):
+
+    columns_y=['y0','y1','y2','y3','y4','y5','y6','y7','y8','y9']
+    y_df=pd.DataFrame(Y,columns=columns_y)
+    
+    columns_x=['age','gender','income','became_member_on']
+    x_df=pd.DataFrame(X,columns=columns_x)
+    
+    table=pd.concat([x_df,y_df],axis=1)
+    
+    for col in columns_y:
+        table=up_df(table,col)
+    
+    # Display new class counts
+    #table['y0'].value_counts()
+    scaler=MinMaxScaler()
+    rescaled_data=scaler.fit_transform(table[columns_x])
+    X_train, X_test, y_train, y_test = train_test_split(rescaled_data,\
+                                                        table[columns_y], test_size=0.2)
+
+    y_test=np.array(y_test)
+    y_train=np.array(y_train)
+    
+    return X_train, X_test, y_train, y_test
+
 def build_model():
     
     #pipeline model - parameters are not optimized in order to run faster
     pipeline = Pipeline([
-        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        ('clf', MultiOutputClassifier(SVC(kernel='rbf',class_weight='balanced',\
+                                          C=10.0, gamma='auto')))
     ])
 
     return pipeline
@@ -44,6 +90,8 @@ def optimize_model():
     #pipeline model
     pipeline = Pipeline([
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        #('clf', MultiOutputClassifier(AdaBoostClassifier(n_estimators=100, learning_rate=0.01)))
+        #('clf', MultiOutputClassifier(SVC(kernel='poly', C=100.0, gamma='auto')))
     ])
          
     #grid serch parameters
@@ -77,7 +125,7 @@ def save_model(model):
     return
 
 X, Y = load_data()
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+X_train, X_test, Y_train, Y_test = upsampler(X,Y)
         
 print('Building model...')
 model = build_model()
