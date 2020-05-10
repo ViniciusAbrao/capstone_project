@@ -1,8 +1,0 @@
-exploratory analysis
-filter data
-create features/labels table
-train and evaluate model
-features selection - compare with and without became_member
-classifier selection - random forest or svm with min/max scaller
-optimize model - select classifier parameters (c, gamma, nestimator...)
-
