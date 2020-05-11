@@ -1,7 +1,7 @@
 # Starbuck's Capstone Challenge
 
 
-## Dataset overview (according to Udacity.com)
+## Project overview (according to Udacity.com)
 The program used to create the data simulates how people make purchasing decisions and how those decisions are influenced by promotional offers.
 Each person in the simulation has some hidden traits that influence their purchasing patterns and are associated with their observable traits. People produce various events, including receiving offers, opening offers, and making purchases.
 As a simplification, there are no explicit products to track. Only the amounts of each transaction or offer are recorded.
@@ -41,13 +41,13 @@ reward: (numeric) money gained from "offer completed"
 time: (numeric) hours after start of test
 
 ### features.pkl
-Saved list from each user`s profile with 'age','gender','income','became_member_on' infos that are used as input features to the classification algorithm.
+Saved list from each user`s profile with 'age','gender','income','became_member_on' info that are used as input features to the classification algorithm.
 
 ### labels.pkl
 Saved list from each user with the indicated offer, based on the transcripts data, that are used as output labels to the classification algorithm.
 
 ### [y0, y1, y2, y3, y4, y5, y6, y7, y8, y9].pkl
-There are 10 pkl files each one with the model that predict if a given user features is indicated or not to that offer, acoording to the list:
+There are 10 pkl files each one with the model that predict if a given user features is indicated or not to that offer, according to the list:
 
 y[i]     offer_type :                    id  
 
@@ -69,11 +69,10 @@ Jupyter notebook used to process the data, with an exploratory analysis initiall
 Jupyter notebook used to implement the classification algorithm that predicts if a given user features is indicated to each promo. 10 different models are computed, each one resulting in a separated pkl file.
 
 ### view_results.ipynb
-Jupyter notebook used to check the predicted results. There are one first section in which the results takes the full list of users and compare the predicted results with the labels.pkl file, computing the accuracy, precision and recall for each offer. Next, it is possible to input the features of one user and predict wich offer is the best indicated to that profile.
+Jupyter notebook used to check the predicted results. There are one first section which takes the full list of users and compare the predicted results with the labels.pkl file, computing the accuracy, precision and recall for each offer. Next, it is possible to input the features of one user and predict which offer is the best indicated to that profile.
 
 ## How to work with the files:
 First, run the process_data.ipynb, that takes the portfolio.json, transcript.json and features.pkl and generate the features.pkl and labels.pkl.
 Second, run the model.ipynb that takes the features.pkl and labels.pkl and generate the [y0, y1, y2, y3, y4, y5, y6, y7, y8, y9].pkl.
-Finally,  run the view_results.ipynb, that takes the [y0, y1, y2, y3, y4, y5, y6, y7, y8, y9].pkl and make the predictions.
-
+Finally, run the view_results.ipynb, that takes the [y0, y1, y2, y3, y4, y5, y6, y7, y8, y9].pkl and make the predictions.
 
