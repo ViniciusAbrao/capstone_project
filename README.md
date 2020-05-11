@@ -66,7 +66,7 @@ y[9]  informational : 5a8bc65990b245e5a138643cd4eb9837
 Jupyter notebook used to process the data, with an exploratory analysis initially, next the data is filtered, a function to evaluate the user log of transcripts is implemented, and the features and labels pkl files are saved.
 
 ### model.ipynb
-Jupyter notebook used to implement the classification algorithm that predicts if a given user features is indicated to each promo. 10 different models are computed, each one resulting in a separated pkl file.
+Jupyter notebook used to implement the classification algorithm that predicts whether or not someone will respond to an offer. 10 different models are computed, each one resulting in a separated pkl file related to each offer prediction.
 
 ### view_results.ipynb
 Jupyter notebook used to check the predicted results. There are one first section which takes the full list of users and compare the predicted results with the labels.pkl file, computing the accuracy, precision and recall for each offer. Next, it is possible to input the features of one user and predict which offer is the best indicated to that profile.
