@@ -1,5 +1,7 @@
-# Starbuck's Capstone Challenge
+# Starbucks Capstone Challenge
 
+Ps.: Check the blog post at:
+https://medium.com/@abrao.vinicius/starbucks-capstone-challenge-d5c277410b7a
 
 ## Project overview (according to Udacity.com)
 The program used to create the data simulates how people make purchasing decisions and how those decisions are influenced by promotional offers.
@@ -11,34 +13,34 @@ The objective of this project is to obtain a classification algorithm that predi
 ## Data Dictionary
 
 ### profile.json
-Rewards program users (17000 users x 5 fields)
+Rewards program users (17000 users x 5 fields).
 
-gender: (categorical) M, F, O, or null
-age: (numeric) missing value encoded as 118
-id: (string/hash)
-became_member_on: (date) format YYYYMMDD
-income: (numeric)
+gender: (categorical) M, F, O, or null;
+age: (numeric) missing value encoded as 118;
+id: (string/hash);
+became_member_on: (date) format YYYYMMDD;
+income: (numeric).
 
 ### portfolio.json
-Offers sent during 30-day test period (10 offers x 6 fields)
+Offers sent during 30-day test period (10 offers x 6 fields).
 
-reward: (numeric) money awarded for the amount spent
-channels: (list) web, email, mobile, social
-difficulty: (numeric) money required to be spent to receive reward
-duration: (numeric) time for offer to be open, in days
-offer_type: (string) bogo, discount, informational
-id: (string/hash)
+reward: (numeric) money awarded for the amount spent;
+channels: (list) web, email, mobile, social;
+difficulty: (numeric) money required to be spent to receive reward;
+duration: (numeric) time for offer to be open, in days;
+offer_type: (string) bogo, discount, informational;
+id: (string/hash).
 
 ### transcript.json
-Event log (306648 events x 4 fields)
+Event log (306648 events x 4 fields).
 
-person: (string/hash)
-event: (string) offer received, offer viewed, transaction, offer completed
-value: (dictionary) different values depending on event type
-offer id: (string/hash) not associated with any "transaction"
-amount: (numeric) money spent in "transaction"
-reward: (numeric) money gained from "offer completed"
-time: (numeric) hours after start of test
+person: (string/hash);
+event: (string) offer received, offer viewed, transaction, offer completed;
+value: (dictionary) different values depending on event type;
+offer id: (string/hash) not associated with any "transaction";
+amount: (numeric) money spent in "transaction";
+reward: (numeric) money gained from "offer completed";
+time: (numeric) hours after start of test.
 
 ### features.pkl
 Saved list from each user`s profile with 'age','gender','income','became_member_on' info that are used as input features to the classification algorithm.
@@ -80,4 +82,4 @@ Finally, run the view_results.ipynb, that takes the [y0, y1, y2, y3, y4, y5, y6,
 Pandas, Matplotlib, Numpy, Pickle, Sklearn, Time, ProgressBar.
 
 ## Results:
-The precision, recall and accuracy of the models are all above 88%, with an average accuracy of 97.7%.
+The precision of the models are all above 84%, recall above 92% and an average accuracy of 97.7%.
